@@ -45,8 +45,10 @@
                     .catch(response => this.failure('Błąd przy zakładaniu konta. Kod odpowiedzi: ' + response.status));
             },
             login(user) {
-                this.clearMessage();
-                this.authenticatedUsername = user.login;
+                this.$http.post('token',user)
+              .then(()=>this.authenticatedUsername = user.login;)
+                //this.clearMessage();
+
             },
             logout() {
                 this.authenticatedUsername = '';
