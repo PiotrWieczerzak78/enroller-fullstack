@@ -31,17 +31,55 @@
         },
         methods: {
             addNewMeeting(meeting) {
-                this.meetings.push(meeting);
+              this.$http.post('meetings', meeting)
+                  .then(response => {
+                    console.log(response);
+                    this.refreshMeetings();
+                  })
+                  .catch(err => console.log("error:" + err));
+
             },
             addMeetingParticipant(meeting) {
-                meeting.participants.push(this.username);
+
+              this.$http.post('meetings/' + meeting.id +'/participants?username=' + this.username)
+                  .then((response) => {
+                    console.log(response);
+                    this.refreshMeetings();
+                  })
+                  .catch(err => console.log("error" + err))
+
             },
             removeMeetingParticipant(meeting) {
-                meeting.participants.splice(meeting.participants.indexOf(this.username), 1);
+              this.$http.delete('meetings/' + meeting.id +'/participants?username=' + this.username)
+                  .then((response) => {
+                    console.log(response);
+                    this.refreshMeetings();
+                  })
+                  .catch(err => console.log("error" + err))
             },
             deleteMeeting(meeting) {
-                this.meetings.splice(this.meetings.indexOf(meeting), 1);
-            }
-        }
+
+              this.$http.delete('meetings/' + meeting.id)
+                  .then((response) => {
+                    console.log(response);
+                    this.refreshMeetings();
+                  })
+                  .catch(err => console.log("error" + err))
+            },
+          refreshMeetings() {
+
+            this.$http.get('meetings')
+                .then(response => {
+                  console.log(response);
+                  this.meetings = response.body;
+                })
+                .catch(err => console.log("error" + err))
+
+          }
+        },
+
+      mounted() {
+        this.refreshMeetings();
+      }
     }
 </script>
