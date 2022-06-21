@@ -31,38 +31,74 @@
         },
         methods: {
             addNewMeeting(meeting) {
+
               this.$http.post('meetings', meeting)
                   .then(response => {
-                    console.log(response);
-                    this.refreshMeetings();
+                    console.log("addNewMeeting"+response);
+                    // this.refreshMeetings();
+
+                    this.meetings.push(meeting);
                   })
                   .catch(err => console.log("error:" + err));
 
             },
             addMeetingParticipant(meeting) {
-
-              this.$http.post('meetings/' + meeting.id +'/participants?username=' + this.username)
+              let myTitle = meeting.title;
+              let index;
+              console.log("addMeetingParticipant"+' myTitle = ' +myTitle);
+              this.$http.get('meetings/getId/'+myTitle)
                   .then((response) => {
-                    console.log(response);
-                    this.refreshMeetings();
+                        console.log("addMeetingParticipant"+' meetings/getId '+ response.body);
+                        if(response.status == "200"){
+                          index = response.body;
+                          console.log("addMeetingParticipant"+' index '+ index);
+                          this.$http.post('meetings/' + index +'/participant/' + this.username)
+                            .then((response) => {
+                                console.log("addMeetingParticipant"+response.body);
+                                meeting.participants.push(this.username);
+                            })
+                            .catch(err => console.log("error" + err))
+                        }
                   })
                   .catch(err => console.log("error" + err))
-
             },
             removeMeetingParticipant(meeting) {
-              this.$http.delete('meetings/' + meeting.id +'/participants?username=' + this.username)
+              let myTitle = meeting.title;
+              let index;
+              console.log("removeMeetingParticipant"+' myTitle = ' +myTitle);
+              this.$http.get('meetings/getId/'+myTitle)
                   .then((response) => {
-                    console.log(response);
-                    this.refreshMeetings();
+                        console.log("removeMeetingParticipant"+' meetings/getId '+ response.body);
+                        if(response.status == "200"){
+                          index = response.body;
+                          console.log("removeMeetingParticipant"+' index '+ index);
+                          this.$http.delete('meetings/' + index +'/participant/' + this.username)
+                              .then((response) => {
+                                console.log("removeMeetingParticipant"+response.body);
+                                meeting.participants.splice(meeting.participants.indexOf(this.username), 1);
+                              })
+                              .catch(err => console.log("error" + err))
+                        }
                   })
                   .catch(err => console.log("error" + err))
             },
             deleteMeeting(meeting) {
-
-              this.$http.delete('meetings/' + meeting.id)
+              let myTitle = meeting.title;
+              let index;
+              console.log("deleteMeeting"+' myTitle = ' +myTitle);
+              this.$http.get('meetings/getId/'+myTitle)
                   .then((response) => {
-                    console.log(response);
-                    this.refreshMeetings();
+                    console.log("deleteMeeting"+' meetings/getId '+ response.body);
+                        if(response.status == "200"){
+                          index = response.body;
+                          console.log("deleteMeeting"+' index '+ index);
+                          this.$http.delete('meetings/' + index)
+                              .then((response) => {
+                                console.log(response);
+                                this.meetings.splice(this.meetings.indexOf(meeting), 1);
+                              })
+                              .catch(err => console.log("error" + err))
+                        }
                   })
                   .catch(err => console.log("error" + err))
             },
@@ -70,8 +106,10 @@
 
             this.$http.get('meetings')
                 .then(response => {
-                  console.log(response);
-                  this.meetings = response.body;
+                  console.log("refreshMeetings"+response);
+                  if(response.status == "200"){
+                    this.meetings=response.body;
+                  }
                 })
                 .catch(err => console.log("error" + err))
 
